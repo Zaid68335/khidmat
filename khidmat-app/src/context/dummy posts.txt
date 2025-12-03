@@ -1,0 +1,23 @@
+const DEFAULT_POSTS: Post[] = [
+  {
+    id: "1",
+    title: "Food preparation - BREAKFAST",
+    description: "Need volunteers to help cook and distribute food.",
+    time: "08:30 AM",
+    volunteers: [],
+  },
+  {
+    id: "2",
+    title: "Clothes Donation Drive",
+    description: "Sorting and organizing donated clothes.",
+    time: "12:00 PM",
+    volunteers: [],
+  },
+  {
+    id: "3",
+    title: "Evening Service Help",
+    description: "Assist elders with evening meals.",
+    time: "06:45 PM",
+    volunteers: [],
+  },
+];
