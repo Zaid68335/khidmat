@@ -21,3 +21,24 @@ const DEFAULT_POSTS: Post[] = [
     volunteers: [],
   },
 ];
+// Provider
+export const PostsProvider = ({ children }: { children: ReactNode }) => {
+  const STORAGE_KEY = "posts";
+  const [posts, setPosts] = useState<Post[]>(DEFAULT_POSTS);
+
+  // Load stored posts + merge with defaults
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const stored: Post[] = JSON.parse(raw);
+          // merge defaults + stored
+          setPosts([...DEFAULT_POSTS, ...stored]);
+        }
+      } catch (e) {
+        console.log("Load error:", e);
+      }
+    };
+    load();
+  }, []);

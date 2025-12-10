@@ -21,7 +21,7 @@ export default function VolunteerCard({ item, onPress }: { item: Post | undefine
           {item.title || "Untitled Post"}
         </Text>
         <Text style={{ color: colors.text }}>{item.description}</Text>
-        <Text style={{ color: colors.text }}>Meal: {item.time}</Text>
+        <Text style={{ color: colors.text }}>Time: {item.time}</Text>
       </View>
     </TouchableOpacity>
   );
