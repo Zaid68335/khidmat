@@ -1,9 +1,10 @@
 [
   {
-    "id" : "1",
+    "id": "1",
     "title": "Food preparation - BREAKFAST",
     "description": "Need volunteers to help cook and distribute food.",
     "time": "08:30 AM",
+    "type": "volunteer",
     "volunteers": []
   },
   {
@@ -11,27 +12,31 @@
     "title": "Clothes Donation Drive",
     "description": "Sorting and organizing donated clothes.",
     "time": "12:00 PM",
+    "type": "volunteer",
     "volunteers": []
   },
   {
     "id": "3",
     "title": "Evening Service Help",
-   "description": "Assist elders with evening meals.",
+    "description": "Assist elders with evening meals.",
     "time": "06:45 PM",
+    "type": "volunteer",
     "volunteers": []
   },
   {
     "id": "4",
     "title": "Community Clean-Up",
-    "description": "Join us in cleaning up the dargah.",
+    "description": "Join us in cleaning the dargah.",
     "time": "03:00 PM",
+    "type": "volunteer",
     "volunteers": []
   },
   {
-    "id" : "5",
+    "id": "5",
     "title": "Parking Assistance",
-    "description": "Help set up and manage the parking area for visitors.",
+    "description": "Help manage parking for visitors.",
     "time": "10:00 AM",
+    "type": "volunteer",
     "volunteers": []
   }
 ]

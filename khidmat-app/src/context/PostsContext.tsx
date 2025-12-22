@@ -1,88 +1,95 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import defaultPostsJson from "../data/samplePosts.json";
+import rawPosts from "../data/samplePosts.json";
+const defaultPosts = rawPosts as Post[];
 
-// Post interface
+
+// ---- TYPES ----
+export type PostType = "volunteer" | "sponsor";
+
 export interface Post {
   id: string;
   title: string;
   description: string;
   time: string;
   volunteers: string[];
+  type: PostType;
+  qrCode?: string | null;
 }
 
-// Convert JSON to typed Post[]
-const DEFAULT_POSTS: Post[] = defaultPostsJson as Post[];
-
-// Context interface
 interface ContextProps {
   posts: Post[];
-  addPost: (post: Post) => void;
-  acceptVolunteer: (postId: string, volunteer: string) => void;
+  addPost: (p: Post) => void;
+  deletePost: (id: string) => void;
+  acceptVolunteer: (id: string, name: string) => void;
   clearPosts: () => void;
-  deletePost: (postId: string) => void;
 }
 
 export const PostsContext = createContext<ContextProps>({
   posts: [],
   addPost: () => {},
+  deletePost: () => {},
   acceptVolunteer: () => {},
   clearPosts: () => {},
-  deletePost: () => {},
 });
 
+const STORAGE_KEY = "USER_POSTS";
+
 export const PostsProvider = ({ children }: { children: ReactNode }) => {
-  const STORAGE_KEY = "posts";
-  const [posts, setPosts] = useState<Post[]>(DEFAULT_POSTS);
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  // Load saved posts and merge with defaults
+  // Load saved + defaults
   useEffect(() => {
-    const loadPosts = async () => {
+    const load = async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        let userPosts: Post[] = saved ? JSON.parse(saved) : [];
 
-        if (!raw) {
-          setPosts(DEFAULT_POSTS);
-          return;
-        }
-
-        const storedPosts: Post[] = JSON.parse(raw);
-
-        setPosts([...DEFAULT_POSTS, ...storedPosts]);
-      } catch (error) {
-        console.log("Load error:", error);
+        // Merge default posts (always visible)
+        setPosts([...defaultPosts, ...userPosts]);
+      } catch (err) {
+        console.log("Load error:", err);
       }
     };
 
-    loadPosts();
+    load();
   }, []);
 
-  // Save user-created posts only
+  // Save only user-created posts
   useEffect(() => {
-    const savePosts = async () => {
+    const save = async () => {
       try {
         const userPosts = posts.filter(
-          (p) => !DEFAULT_POSTS.some((d) => d.id === p.id)
+          p => !defaultPosts.some(d => d.id === p.id)
         );
 
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userPosts));
-      } catch (error) {
-        console.log("Save error:", error);
+      } catch (err) {
+        console.log("Save error:", err);
       }
     };
 
-    savePosts();
+    save();
   }, [posts]);
 
-  // Add new post
+  // ADD NEW POST
   const addPost = (post: Post) => {
-    setPosts((prev) => [...prev, post]);
+    setPosts(prev => [...prev, post]);
   };
 
-  // Accept volunteer
+  // DELETE POST (cannot delete default)
+  const deletePost = (id: string) => {
+    if (defaultPosts.some(p => p.id === id)) {
+      return; // block deleting default items
+    }
+
+    setPosts(prev => prev.filter(p => p.id !== id));
+  };
+
+  // ADD A VOLUNTEER
   const acceptVolunteer = (postId: string, volunteer: string) => {
-    setPosts((prev) =>
-      prev.map((p) =>
+    setPosts(prev =>
+      prev.map(p =>
         p.id === postId
           ? { ...p, volunteers: [...p.volunteers, volunteer] }
           : p
@@ -90,26 +97,15 @@ export const PostsProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  // Delete user-created posts only
-  const deletePost = (postId: string) => {
-    if (DEFAULT_POSTS.some((d) => d.id === postId)) return;
-
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
-  };
-
-  // Clear only user-created posts
+  // CLEAR ONLY USER POSTS
   const clearPosts = async () => {
-    try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
-      setPosts(DEFAULT_POSTS);
-    } catch (error) {
-      console.log("Clear error:", error);
-    }
+    await AsyncStorage.removeItem(STORAGE_KEY);
+    setPosts(defaultPosts);
   };
 
   return (
     <PostsContext.Provider
-      value={{ posts, addPost, acceptVolunteer, clearPosts, deletePost }}
+      value={{ posts, addPost, deletePost, acceptVolunteer, clearPosts }}
     >
       {children}
     </PostsContext.Provider>
